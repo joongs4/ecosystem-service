@@ -10,13 +10,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
 
 import org.springframework.beans.BeanUtils;
 
 import com.kakaopay.ecosystem.entity.RegionEntity;
+import com.kakaopay.ecosystem.util.StringPrefixedSequenceIdGenerator;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,17 +31,19 @@ import lombok.Setter;
 @Entity(name = "Region")
 @Table(name = "TB_REGION")
 @EqualsAndHashCode(of = { "id" })
-@SequenceGenerator(allocationSize = 1, initialValue = 1, name = "LAST_NUMBER_SEQ")
 @NoArgsConstructor
 public class RegionJpo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "LAST_NUMBER_SEQ")
+	@GenericGenerator(name = "LAST_NUMBER_SEQ", strategy = "com.kakaopay.ecosystem.util.StringPrefixedSequenceIdGenerator", parameters = {
+			@Parameter(name = StringPrefixedSequenceIdGenerator.VALUE_PREFIX_PARAMETER, value = "reg"),
+			@Parameter(name = StringPrefixedSequenceIdGenerator.NUMBER_FORMAT_PARAMETER, value = "%d") })
 	@Column(updatable = false)
-	private Integer id;
+	private String id;
 	private String name;
 
-	@ManyToMany(mappedBy = "regions")
+	@OneToMany(mappedBy = "region")
 	private Set<EcosystemServiceJpo> ecosystemServices;
 
 	public RegionJpo(RegionEntity entity) {

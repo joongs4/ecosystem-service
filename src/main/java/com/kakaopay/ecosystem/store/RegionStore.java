@@ -33,9 +33,9 @@ public class RegionStore {
 		return null;
 	}
 
-	public List<RegionEntity> findAllByNameEnd(String regionName) {
+	public List<RegionEntity> findAllByNameContaining(String regionName) {
 
-		List<RegionJpo> foundJpos = this.repository.findByNameEndsWith(regionName);
+		List<RegionJpo> foundJpos = this.repository.findByNameContaining(regionName);
 		if (!foundJpos.isEmpty()) {
 			return RegionJpo.toDomains(foundJpos, true);
 		}

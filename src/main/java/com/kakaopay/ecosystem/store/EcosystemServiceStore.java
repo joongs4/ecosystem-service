@@ -24,7 +24,7 @@ public class EcosystemServiceStore {
 		repository.save(jpoToSave);
 
 		return jpoToSave.toDomain(true);
-	}	
+	}
 
 	public List<EcosystemServiceEntity> findByRegion(String region) {
 
@@ -35,7 +35,7 @@ public class EcosystemServiceStore {
 		return null;
 	}
 
-	public EcosystemServiceEntity findById(Integer id) {
+	public EcosystemServiceEntity findById(String id) {
 
 		Optional<EcosystemServiceJpo> foundJpo = repository.findById(id);
 		if (foundJpo.isPresent()) {

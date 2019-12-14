@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kakaopay.ecosystem.store.jpo.EcosystemServiceJpo;
 
-public interface EcosystemServiceRepository extends JpaRepository<EcosystemServiceJpo, Integer> {
+public interface EcosystemServiceRepository extends JpaRepository<EcosystemServiceJpo, String> {
 
-	@EntityGraph(attributePaths="regions")
+	@EntityGraph(attributePaths = "regions")
 	List<EcosystemServiceJpo> findByRegionContaining(String region);
 
 }

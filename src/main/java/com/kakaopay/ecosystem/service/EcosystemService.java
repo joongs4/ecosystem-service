@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 
@@ -16,8 +15,15 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
+import com.kakaopay.ecosystem.calculate.CalculateStrategy;
+import com.kakaopay.ecosystem.calculate.RecommendationCalculateStrategy;
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
+import com.kakaopay.ecosystem.entity.ProgramRecommendationEntity;
+import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
 import com.kakaopay.ecosystem.entity.RegionEntity;
+import com.kakaopay.ecosystem.entity.WordCountEntity;
+import com.kakaopay.ecosystem.search.KmpSearchStrategy;
+import com.kakaopay.ecosystem.search.SearchStrategy;
 import com.kakaopay.ecosystem.store.EcosystemServiceStore;
 
 @Service
@@ -28,10 +34,14 @@ public class EcosystemService {
 
 	private final EcosystemServiceStore store;
 	private final RegionService regionService;
+	private final SearchStrategy searchStrategy;
+	private final CalculateStrategy calculateStrategy;
 
 	public EcosystemService(EcosystemServiceStore store, RegionService regionService) {
 		this.store = store;
 		this.regionService = regionService;
+		this.searchStrategy = new KmpSearchStrategy();
+		this.calculateStrategy = new RecommendationCalculateStrategy();
 		init();
 	}
 
@@ -40,24 +50,53 @@ public class EcosystemService {
 		return this.store.findAll();
 	}
 
-	public Set<EcosystemServiceEntity> findByRegion(String region) {
+	public ProgramRegionByKeyword findRegionByKeyword(String keyword) {
 
-		Set<RegionEntity> regions = this.regionService.findRegion(region);
-		if (regions != null && !regions.isEmpty()) {
-			Set<EcosystemServiceEntity> retVal = new HashSet<>();
-			for (RegionEntity currentRegion : regions) {
-				if (currentRegion.getEcosystemServices() != null && !currentRegion.getEcosystemServices().isEmpty()) {
-					retVal.addAll(currentRegion.getEcosystemServices());
-				}
-			}
+		List<EcosystemServiceEntity> allEcosystemServiceEntities = findAll();
+		List<EcosystemServiceEntity> matchingEntities = allEcosystemServiceEntities.stream()
+				.filter(entity -> entity.getProgramIntroduction().contains(keyword)).collect(Collectors.toList());
 
-			return retVal;
-		}
+		EcosystemServiceEntity[] matchingEntitiesInArray = new EcosystemServiceEntity[matchingEntities.size()];
+		ProgramRegionByKeyword programRegionByKeyword = new ProgramRegionByKeyword(keyword,
+				matchingEntities.toArray(matchingEntitiesInArray));
 
-		return null;
+		return programRegionByKeyword;
 	}
 
-	public EcosystemServiceEntity updateEcosystemService(Integer id, EcosystemServiceEntity entity) {
+	public WordCountEntity findKeywordCount(String keyword) {
+
+		WordCountEntity retVal = new WordCountEntity(keyword);
+		List<EcosystemServiceEntity> allEcosystemServiceEntities = findAll();
+		for (EcosystemServiceEntity ecosystemServiceEntity : allEcosystemServiceEntities) {
+			if (searchStrategy.containsPattern(ecosystemServiceEntity.getProgramDetailedIntroduction(), keyword)) {
+				retVal.plus();
+			}
+		}
+
+		return retVal;
+	}
+
+	public ProgramRecommendationEntity findRecommendation(String region, String keyword) {
+		List<RegionEntity> regions = regionService.findRegion(region);
+
+		List<EcosystemServiceEntity> ecosystemServiceEntities = regions.stream()
+				.flatMap(eachRegion -> eachRegion.getEcosystemServices().stream()).collect(Collectors.toList());
+
+		ProgramRecommendationEntity recommendedProgram = ecosystemServiceEntities.stream()
+				.map(each -> new ProgramRecommendationEntity(keyword, each, searchStrategy, calculateStrategy))
+				.max(ProgramRecommendationEntity::compareTo).get();
+
+		return recommendedProgram;
+
+	}
+
+	public EcosystemServiceEntity findById(String id) {
+		EcosystemServiceEntity foundEntity = this.store.findById(id);
+
+		return foundEntity;
+	}
+
+	public EcosystemServiceEntity updateEcosystemService(String id, EcosystemServiceEntity entity) {
 
 		EcosystemServiceEntity entityToUpdate = this.store.findById(id);
 		if (entityToUpdate == null) {
@@ -110,20 +149,15 @@ public class EcosystemService {
 
 			for (CSVRecord csvRecord : csvParser) {
 				EcosystemServiceEntity entityToSave = new EcosystemServiceEntity();
-				entityToSave.setId(Integer.valueOf(csvRecord.get("번호")));
 				entityToSave.setProgramName(csvRecord.get("프로그램명"));
 				entityToSave.setTheme(csvRecord.get("테마별 분류"));
-				entityToSave.setRegion(csvRecord.get("서비스 지역"));
+				entityToSave.setRegionName(csvRecord.get("서비스 지역"));
 				entityToSave.setProgramIntroduction(csvRecord.get("프로그램 소개"));
 				entityToSave.setProgramDetailedIntroduction(csvRecord.get("프로그램 상세 소개"));
-				
-				if(entityToSave.getProgramName().startsWith("오감만족!")) {
-					System.out.println("asdasd");
-				}
 
-				Set<RegionEntity> regions = regionService.saveIfNotExists(entityToSave.getRegion());
-				if (regions != null) {
-					entityToSave.setRegions(regions);
+				RegionEntity region = regionService.saveIfNotExists(entityToSave.getRegionName());
+				if (region != null) {
+					entityToSave.setRegion(region);
 				}
 
 				this.store.save(entityToSave);
