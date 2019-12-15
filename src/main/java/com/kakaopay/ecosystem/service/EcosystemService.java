@@ -1,7 +1,10 @@
 package com.kakaopay.ecosystem.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -12,6 +15,8 @@ import javax.transaction.Transactional;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ResourceUtils;
 
@@ -32,18 +37,21 @@ import com.kakaopay.ecosystem.util.EcosystemUtil;
 @Transactional
 public class EcosystemService {
 
-	private final String initDataFile = "사전과제2.csv";
+//	private final String initDataFile = "사전과제2.csv";
+	private final String initDataFile = "initData.csv";
+	private final ResourceLoader resourceLoader;
 
 	private final EcosystemServiceStore store;
 	private final RegionService regionService;
 	private final SearchStrategy searchStrategy;
 	private final CalculateStrategy calculateStrategy;
 
-	public EcosystemService(EcosystemServiceStore store, RegionService regionService) {
+	public EcosystemService(EcosystemServiceStore store, RegionService regionService, ResourceLoader resourceLoader) {
 		this.store = store;
 		this.regionService = regionService;
 		this.searchStrategy = new KmpSearchStrategy();
 		this.calculateStrategy = new RecommendationCalculateStrategy();
+		this.resourceLoader = resourceLoader;
 		init();
 	}
 
@@ -160,8 +168,50 @@ public class EcosystemService {
 
 	private void init() {
 
-		try (Reader reader = Files
-				.newBufferedReader(Paths.get(ResourceUtils.getFile("classpath:" + initDataFile).getPath()));
+//		try {
+//			File a = resourceLoader.getResource("classpath:" + initDataFile).getFile();
+//
+//			Files.newBufferedReader(Paths.get(resourceLoader.getResource("").getURI()));
+////			Paths.get(Files.newBufferedReader(resourceLoader.getResource("").getFile().toURI()));
+//		} catch (Exception e) {
+//
+//		}
+//		String uri = null;
+//		try {
+//			uri = ResourceUtils.getFile("classpath:" + initDataFile).toURI().toString().split("!")[1];
+//		} catch (Exception e) {
+//			System.out.println("=====================Path read exception=====================");
+//			e.printStackTrace();
+//		}
+//
+//		try (Reader reader = Files.newBufferedReader(Paths.get(uri));
+//				CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+//
+//			System.out.println("====================성공================");
+//
+//		} catch (Exception e) {
+//			System.out.println("==========실패==============");
+//			e.printStackTrace();
+//		}
+
+		
+		
+		try {
+
+			ClassPathResource classPathResource = new ClassPathResource("/src/main/resources/" + initDataFile);
+			InputStream inputStream = Files.newInputStream(Paths.get(classPathResource.getPath()));
+			
+			
+		} catch (Exception e) {
+
+		}
+
+//		try (Reader reader = Files
+//				.newBufferedReader(Paths.get(ResourceUtils.getFile("classpath:" + initDataFile).getPath()));
+//				CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
+		try (Reader reader = Files.newBufferedReader(
+				Paths.get(new ClassPathResource("classpath:" + "/src/main/resources/" + initDataFile).getPath()));
 				CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
 
 			for (CSVRecord csvRecord : csvParser) {
@@ -181,6 +231,7 @@ public class EcosystemService {
 			}
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new BadRequestException("Failed to save init data");
 		}
 	}
