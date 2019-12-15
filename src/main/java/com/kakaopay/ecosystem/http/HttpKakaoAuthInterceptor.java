@@ -17,8 +17,6 @@ public class HttpKakaoAuthInterceptor implements ClientHttpRequestInterceptor {
 	public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)
 			throws IOException {
 		HttpRequest wrapper = new HttpRequestWrapper(request);
-//		wrapper.getHeaders().setBasicAuth(KAKAOAPP_KEY + " " + KAKAOAPP_KEY_VALUE);
-//		wrapper.getHeaders().set(KAKAOAPP_KEY, KAKAOAPP_KEY_VALUE);
 		wrapper.getHeaders().set("Authorization", KAKAOAPP_KEY + " " + KAKAOAPP_KEY_VALUE);
 		return execution.execute(wrapper, body);
 	}

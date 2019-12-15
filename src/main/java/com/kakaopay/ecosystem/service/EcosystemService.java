@@ -22,9 +22,11 @@ import com.kakaopay.ecosystem.entity.ProgramRecommendationEntity;
 import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
 import com.kakaopay.ecosystem.entity.RegionEntity;
 import com.kakaopay.ecosystem.entity.WordCountEntity;
+import com.kakaopay.ecosystem.exception.BadRequestException;
 import com.kakaopay.ecosystem.search.KmpSearchStrategy;
 import com.kakaopay.ecosystem.search.SearchStrategy;
 import com.kakaopay.ecosystem.store.EcosystemServiceStore;
+import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 @Service
 @Transactional
@@ -100,7 +102,7 @@ public class EcosystemService {
 
 		EcosystemServiceEntity entityToUpdate = this.store.findById(id);
 		if (entityToUpdate == null) {
-			throw new RuntimeException("Unable to find ecosystem service by id(" + id + ")");
+			throw new BadRequestException("Unable to find ecosystem service by id(" + id + ")");
 		}
 
 		setValues(entity, entityToUpdate);
@@ -111,9 +113,24 @@ public class EcosystemService {
 
 	public EcosystemServiceEntity saveEcosystemService(EcosystemServiceEntity entity) {
 
-		// Validation
-
+		validateEcosystemServiceEntity(entity);
 		return this.store.save(entity);
+	}
+
+	private void validateEcosystemServiceEntity(EcosystemServiceEntity entity) {
+
+		if (EcosystemUtil.isNullOrEmpty(entity.getRegionName())) {
+			throw new BadRequestException("regionName is required but missing");
+		}
+
+		if (EcosystemUtil.isNullOrEmpty(entity.getTheme())) {
+			throw new BadRequestException("theme is required but missing");
+		}
+
+		if (EcosystemUtil.isNullOrEmpty(entity.getProgramName())) {
+			throw new BadRequestException("programName is required but missing");
+		}
+
 	}
 
 	private EcosystemServiceEntity setValues(EcosystemServiceEntity sourceEntity, EcosystemServiceEntity targetEntity) {
@@ -164,7 +181,7 @@ public class EcosystemService {
 			}
 
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to save init data");
+			throw new BadRequestException("Failed to save init data");
 		}
 	}
 

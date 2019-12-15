@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import com.kakaopay.ecosystem.entity.KakaoLocalDocumentEntity;
 import com.kakaopay.ecosystem.entity.KakaoLocalDocumentsEntity;
 import com.kakaopay.ecosystem.http.EcosystemHttpClient;
 import com.kakaopay.ecosystem.http.HttpKakaoAuthInterceptor;

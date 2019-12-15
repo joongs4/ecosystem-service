@@ -43,11 +43,6 @@ public class EcosystemServiceJpo implements Serializable {
 	 */
 	private static final long serialVersionUID = -499578570768051786L;
 
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ID_SEQUENCE")
-//	@Column(updatable = false)
-//	private Integer id;
-
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ID_SEQUENCE")
 	@GenericGenerator(name = "ID_SEQUENCE", strategy = "com.kakaopay.ecosystem.util.StringPrefixedSequenceIdGenerator", parameters = {

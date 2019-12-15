@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.web.client.RestTemplate;
 
+import com.kakaopay.ecosystem.exception.InternalServerException;
+
 public class EcosystemHttpClient {
 
 	public static <T> T get(String url, Class<T> responseType, Map<String, ?> variables,
@@ -18,10 +20,9 @@ public class EcosystemHttpClient {
 			restTemplate.setInterceptors(Arrays.asList(interceptors));
 		}
 
-		
 		ResponseEntity<T> retVal = restTemplate.getForEntity(url, responseType);
 		if (retVal.getStatusCodeValue() < 200 || retVal.getStatusCodeValue() >= 400) {
-			throw new RuntimeException(
+			throw new InternalServerException(
 					"Http Get Request Exception : " + retVal.getStatusCode() + ", targetUrl : " + url);
 		}
 

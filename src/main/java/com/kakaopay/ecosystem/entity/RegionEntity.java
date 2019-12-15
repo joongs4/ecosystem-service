@@ -36,11 +36,4 @@ public class RegionEntity implements Serializable {
 		this.name = name;
 	}
 
-	public String getCode() {
-
-//		final String prefix = "reg";
-//		return String.format("%s%s", prefix, id);
-		return id;
-	}
-
 }
