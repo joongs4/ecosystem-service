@@ -13,7 +13,7 @@ public class EcosystemExceptionHandler {
 	private static final Logger logger = LoggerFactory.getLogger(EcosystemExceptionHandler.class.getCanonicalName());
 
 	@ExceptionHandler(BadRequestException.class)
-	public ResponseEntity test(BadRequestException e) {
+	public ResponseEntity handleBadRequestException(BadRequestException e) {
 
 		ResponseEntity<String> response = new ResponseEntity<>(e.getBody(), e.getStatus());
 		logger.error(e.getBody());
@@ -22,7 +22,7 @@ public class EcosystemExceptionHandler {
 	}
 
 	@ExceptionHandler(InternalServerException.class)
-	public ResponseEntity test(InternalServerException e) {
+	public ResponseEntity handleInternalServerException(InternalServerException e) {
 
 		ResponseEntity<String> response = new ResponseEntity<>(e.getBody(), e.getStatus());
 		logger.error(e.getBody());
@@ -31,7 +31,7 @@ public class EcosystemExceptionHandler {
 	}
 
 	@ExceptionHandler(RuntimeException.class)
-	public ResponseEntity test(RuntimeException e) {
+	public ResponseEntity handleRuntimeException(RuntimeException e) {
 
 		ResponseEntity<String> response = new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 		logger.error(e.getMessage());
