@@ -18,11 +18,14 @@ public class ProgramRecommendationEntity implements Serializable, Comparable<Pro
 	 */
 	private static final long serialVersionUID = -889310346371783930L;
 	private String program;
+	
+	@JsonIgnore
 	private String keyword;
 
 	@JsonIgnore
 	private EcosystemServiceEntity ecosystemServiceEntity;
 
+	@JsonIgnore
 	private double score = 0;
 
 	@JsonIgnore
@@ -32,7 +35,7 @@ public class ProgramRecommendationEntity implements Serializable, Comparable<Pro
 
 	public ProgramRecommendationEntity(String keyword, EcosystemServiceEntity ecosystemServiceEntity,
 			SearchStrategy searchStrategy, CalculateStrategy calculateStrategy) {
-		this.program = ecosystemServiceEntity.getProgramName();
+		this.program = ecosystemServiceEntity.getId();
 		this.keyword = keyword;
 		this.ecosystemServiceEntity = ecosystemServiceEntity;
 		this.searchStrategy = searchStrategy;

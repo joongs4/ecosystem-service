@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,12 +26,12 @@ import io.jsonwebtoken.ExpiredJwtException;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
-	
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class.getCanonicalName());
-	
+
 	@Autowired
 	private UserService userService;
+
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
@@ -46,7 +47,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				jwtToken = requestTokenHeader.substring(7);
 				try {
 					username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-				} catch (IllegalArgumentException e) {					
+				} catch (IllegalArgumentException e) {
 					logger.error("Unable to get JWT Token");
 					throw new BadRequestException("Unable to get JWT Token");
 				} catch (ExpiredJwtException e) {
@@ -58,17 +59,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 			}
 		}
-		if (username != null && SecurityContextHolder.getContext().getAuthentication() == null)
-
-		{
-			UserDetails userDetails = this.userService.loadUserByUsername(username);
-			if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-						userDetails, null, userDetails.getAuthorities());
-				usernamePasswordAuthenticationToken
-						.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		try {
+			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				UserDetails userDetails = this.userService.loadUserByUsername(username);
+				if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+							userDetails, null, userDetails.getAuthorities());
+					usernamePasswordAuthenticationToken
+							.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+				}
 			}
+		} catch (UsernameNotFoundException e) {
+			logger.error(e.getMessage());
+			
+			throw e;
 		}
 
 		chain.doFilter(request, response);

@@ -27,7 +27,6 @@ public class EcosystemServiceResource {
 		this.service = service;
 	}
 
-	// 삭제용
 	@GetMapping
 	public List<EcosystemServiceEntity> findAll() {
 
