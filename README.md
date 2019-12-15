@@ -30,6 +30,7 @@
 	7) 추가 제약사항(부분구현) - API 인증을 위해 JWT(Json Web Token)를 이용해서 Token 기반 API 호출 기능을 개발하세요. 
 		A. signup : POST /user/signup, @BODY : UserId & UserPassword
 		B. signin : PUT /user/signin, @BODY : UserId & UserPassword
+		C. Refresh Token 발급 : 미구현
 	
 3. 문제해결 전략
 	1) 2.1 데이터 파일에서 각 레코드를 데이터베이스에 저장하는 API를 개발하세요
