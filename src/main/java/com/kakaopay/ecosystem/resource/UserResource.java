@@ -23,7 +23,7 @@ public class UserResource {
 	}
 
 	@PostMapping(path = "/signup")
-	public String signUp(@RequestBody UserEntity userEntity) {
+	public JwtResponse signUp(@RequestBody UserEntity userEntity) {
 		return this.service.signUp(userEntity);
 	}
 

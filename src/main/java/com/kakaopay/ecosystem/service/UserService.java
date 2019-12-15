@@ -38,7 +38,7 @@ public class UserService implements UserDetailsService {
 		this.passwordEncoder = new BCryptPasswordEncoder();
 	}
 
-	public String signUp(UserEntity userEntity) {
+	public JwtResponse signUp(UserEntity userEntity) {
 
 		if (store.existsById(userEntity.getUserId())) {
 			throw new BadRequestException("User Id already exists");
@@ -49,16 +49,18 @@ public class UserService implements UserDetailsService {
 		userEntity.setUserPassword(encryptedPassword);
 
 		store.save(userEntity);
-		return userEntity.getUserId();
+
+		JwtResponse response = generateJwtToken(userEntity);
+
+		return response;
 	}
 
 	public JwtResponse signIn(UserEntity userEntity) {
 
 		authenticate(userEntity.getUserId(), userEntity.getUserPassword());
-		final UserDetails userDetails = loadUserByUsername(userEntity.getUserId());
-		final String token = jwtTokenUtil.generateToken(userDetails);
+		UserDetails userDetails = loadUserByUsername(userEntity.getUserId());
+		JwtResponse response = generateJwtToken(userDetails);
 
-		JwtResponse response = new JwtResponse(token);
 		return response;
 	}
 
@@ -69,6 +71,18 @@ public class UserService implements UserDetailsService {
 	public List<UserEntity> findAll() {
 
 		return this.store.findAll();
+	}
+
+	private JwtResponse generateJwtToken(UserDetails userDetails) {
+		String token = jwtTokenUtil.generateToken(userDetails);
+		JwtResponse jwtResponse = new JwtResponse(token);
+
+		return jwtResponse;
+	}
+
+	private JwtResponse generateJwtToken(UserEntity userEntity) {
+		UserDetails userDetails = new User(userEntity.getUserId(), userEntity.getUserPassword(), new ArrayList<>());
+		return generateJwtToken(userDetails);
 	}
 
 	private void authenticate(String username, String password) {

@@ -24,8 +24,4 @@ class RegionServiceTests {
 		assertNotNull(regions);
 		assertNotEquals(0, regions.size());
 	}
-	
-	
-	
-
 }

@@ -19,8 +19,8 @@ public class ProgramRegionByKeyword implements Serializable {
 	private static final long serialVersionUID = 5851836789150792902L;
 
 	private String keyword;
-	private List<Program> programs;
 
+	private List<Program> programs;
 	public ProgramRegionByKeyword(String keyword, EcosystemServiceEntity... ecosystemServiceEntities) {
 		this.keyword = keyword;
 

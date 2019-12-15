@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.entity.ProgramRecommendationEntity;
 import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
-import com.kakaopay.ecosystem.entity.ProgramsByRegionEntity;
 import com.kakaopay.ecosystem.entity.WordCountEntity;
 import com.kakaopay.ecosystem.resource.EcosystemServiceResource;
 

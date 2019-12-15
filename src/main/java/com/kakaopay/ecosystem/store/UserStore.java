@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.kakaopay.ecosystem.entity.UserEntity;
 import com.kakaopay.ecosystem.store.jpo.UserJpo;
 import com.kakaopay.ecosystem.store.repository.UserRepository;
+import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 @Repository
 public class UserStore {
@@ -29,24 +30,26 @@ public class UserStore {
 	public boolean existsById(String userId) {
 		if (userRepository.existsById(userId)) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
+
 	}
 
 	public boolean existsByUserIdAndUserPassword(String userId, String userPassword) {
 		if (userRepository.existsByUserIdAndUserPassword(userId, userPassword)) {
 			return true;
-		} else {
-			return false;
 		}
+		return false;
 
 	}
 
 	public List<UserEntity> findAll() {
 		List<UserJpo> users = userRepository.findAll();
+		if (!EcosystemUtil.isNullOrEmpty(users)) {
+			return UserJpo.toDomains(users);
+		}
+		return null;
 
-		return UserJpo.toDomains(users);
 	}
 
 	public UserEntity findByUserId(String userId) {
@@ -54,9 +57,7 @@ public class UserStore {
 		if (user.isPresent()) {
 			return user.get().toDomain();
 		}
-		{
-			return null;
-		}
+		return null;
 
 	}
 

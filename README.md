@@ -10,11 +10,26 @@
 2. 기능명세 구현여부
 	1) 필수(구현) - 데이터 파일에서 각 레코드를 데이터베이스에 저장하는 API를 개발하세요
 	2) 필수(구현) - 생태 관광정보 데이터를 조회/추가/수정할 수 있는 API를 개발하세요. 
+		A. 조회 : GET /ecosystem, /ecosystem/{id}
+		B. 추가 : POST /ecosystem , BODY : 생태 관광정보
+		C. 수정 : PUT /ecosystem/{id} , BODY : 생태 관광정보
+		
 	3) 필수(구현) - 생태 관광지 중에 서비스 지역 컬럼에서 특정 지역에서 진행되는 프로그램명과 테마를 출력하는 API를 개발하세요
+		A. GET /region/{region}
+		
 	4) 필수(구현) - 생태 정보 데이터에 "프로그램 소개” 컬럼에서 특정 문자열이 포함된 레코드에서 서비스 지역 개수를 세어 출력하는 API를 개발하세요.
+		A. GET /ecosystem/region?keyword={keyword}
+		
+		
 	5) 필수(구현) - 모든 레코드에 프로그램 상세 정보를 읽어와서 입력 단어의 출현빈도수를 계산하여 출력 하는 API를 개발하세요. 
+		A. GET /ecosystem/count?keyword={keyword}
+	
 	6) 선택(구현) - 생태관광 정보를 기반으로 생태관광 프로그램을 추천해주려고 합니다. 지역명과 관광 키 워드를 입력받아 프로그램 코드를 출력하는 API를 개발하세요.
+		A. GET /ecosystem/recommendation?region={region}&keyword={keyword}
+		
 	7) 추가 제약사항(부분구현) - API 인증을 위해 JWT(Json Web Token)를 이용해서 Token 기반 API 호출 기능을 개발하세요. 
+		A. signup : POST /user/signup, @BODY : UserId & UserPassword
+		B. signin : PUT /user/signin, @BODY : UserId & UserPassword
 	
 3. 문제해결 전략
 	1) 2.1 데이터 파일에서 각 레코드를 데이터베이스에 저장하는 API를 개발하세요
@@ -33,7 +48,7 @@
 		
 	5) 2.5 모든 레코드에 프로그램 상세 정보를 읽어와서 입력 단어의 출현빈도수를 계산하여 출력 하는 API를 개발하세요.
 		A) 모든 생태관광 정보를 조회한 뒤 "프로그램 상세 소개" 컬럼에서 입력 단어의 출현 빈도수를 계산하여 출력
-		B) 문자열 검색 알고리즘 중 KMP를 이용
+		B) 문자열 검색 알고리즘 중 KMP를 이용 - 참고 https://mygumi.tistory.com/61
 		
 	6) 2.6 - 생태관광 정보를 기반으로 생태관광 프로그램을 추천해주려고 합니다. 지역명과 관광 키워드를 입력받아 프로그램 코드를 출력하는 API를 개발하세요.
 		A) 지역명을 입력받아 표준화된 지역정보를 바탕으로 RegionJpo를 검색한 뒤 이에 관계가 맺어진 EcosystemService Entity 조회
@@ -51,11 +66,13 @@
 				programDetailedIntroduction: " 1일차: 백룡동굴, 민물고기생태관 체험, 칠족령 트레킹 2일차: 대관령 양떼목장, 신재생 에너지전시관, 오대산국립공원 3일차: 이효석 문학관, 봉평마을"
 			}
 			
-	7) 2.7 - API 인증을 위해 JWT(Json Web Token)를 이용해서 Token 기반 API 호출 기능을 개발하세요. 
+	7) 2.7 - API 인증을 위해 JWT(Json Web Token)를 이용해서 Token 기반 API 호출 기능을 개발하세요.
 		A) signup 계정 생성 API : ID 중복체크를 수행한 후 Password를 암호화하여 저장하고 토큰은 secret으로 서명하여 생성한다.		
 		B) signin 로그인 API : IP, PASSWORD를 체크한 후 토큰을 발급한다.		
 		C) secret은 설정파일(application.yml)에서 jwt.secret으로 설정할 수 있다.
 		D) refresh 토큰 재발급 API : 미구현
+		참고 - https://medium.com/swlh/spring-boot-security-jwt-hello-world-example-b479e457664c
+		
 
 
 

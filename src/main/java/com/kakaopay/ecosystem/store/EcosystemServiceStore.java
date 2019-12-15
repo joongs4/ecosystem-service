@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.store.jpo.EcosystemServiceJpo;
 import com.kakaopay.ecosystem.store.repository.EcosystemServiceRepository;
+import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 @Repository
 public class EcosystemServiceStore {
@@ -29,7 +30,7 @@ public class EcosystemServiceStore {
 	public List<EcosystemServiceEntity> findByRegion(String region) {
 
 		List<EcosystemServiceJpo> foundJpos = repository.findByRegionContaining(region);
-		if (foundJpos != null && !foundJpos.isEmpty()) {
+		if (!EcosystemUtil.isNullOrEmpty(foundJpos)) {
 			return EcosystemServiceJpo.toDomains(foundJpos, true);
 		}
 		return null;
@@ -48,7 +49,7 @@ public class EcosystemServiceStore {
 	public List<EcosystemServiceEntity> findAll() {
 
 		List<EcosystemServiceJpo> foundJpos = repository.findAll();
-		if (foundJpos != null && !foundJpos.isEmpty()) {
+		if (!EcosystemUtil.isNullOrEmpty(foundJpos)) {
 			return EcosystemServiceJpo.toDomains(foundJpos, true);
 		}
 

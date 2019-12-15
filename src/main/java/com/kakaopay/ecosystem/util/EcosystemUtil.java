@@ -13,4 +13,10 @@ public class EcosystemUtil {
 		return collection == null || collection.isEmpty();
 	}
 
+	public static String generateGuid() {
+		String retVal = java.util.UUID.randomUUID().toString();
+
+		return retVal;
+	}
+
 }
