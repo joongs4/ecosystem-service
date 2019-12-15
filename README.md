@@ -6,6 +6,7 @@
 	1) 언어: Java 8
 	2) 프레임워크: SpringBoot, Hibernate, Spring Data Jpa
 	3) DB: H2
+	4) Log: Logback
 
 2. 기능명세 구현여부
 	1) 필수(구현) - 데이터 파일에서 각 레코드를 데이터베이스에 저장하는 API를 개발하세요
