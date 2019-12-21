@@ -49,9 +49,13 @@ public class RegionService {
 		RegionEntity retVal = null;
 
 		String realRegion = addressManager.getStandardAddress(region);
-		reentrantLock.lock();
-		retVal = saveRegion(realRegion);
-		reentrantLock.unlock();
+
+		try {
+			reentrantLock.lock();
+			retVal = saveRegion(realRegion);
+		} finally {
+			reentrantLock.unlock();
+		}
 
 		return retVal;
 	}
@@ -59,7 +63,7 @@ public class RegionService {
 	private RegionEntity saveRegion(String region) {
 		RegionEntity savedRegion = this.store.findByName(region);
 		if (savedRegion == null) {
-			//기존
+			// 기존
 //			reentrantLock.lock();
 			RegionEntity entityToSave = new RegionEntity(region);
 			savedRegion = this.store.save(entityToSave);

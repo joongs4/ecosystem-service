@@ -61,8 +61,8 @@ public class EcosystemServiceJpo implements Serializable {
 
 	@ManyToOne(cascade = { CascadeType.MERGE })
 //	@JsonIgnoreProperties("region")
-//	@JoinTable(name = "EcosystemService_Region", joinColumns = {
-//			@JoinColumn(name = "regionId") }, inverseJoinColumns = { @JoinColumn(name = "id") })
+	@JoinTable(name = "EcosystemService_Region", joinColumns = {
+			@JoinColumn(name = "ecosystemServiceId") }, inverseJoinColumns = { @JoinColumn(name = "regionId") })
 	private RegionJpo region;
 
 	public EcosystemServiceJpo(EcosystemServiceEntity entity) {
