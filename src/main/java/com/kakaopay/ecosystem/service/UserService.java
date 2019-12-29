@@ -16,16 +16,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.kakaopay.ecosystem.entity.JwtTokenEntity;
 import com.kakaopay.ecosystem.entity.UserEntity;
 import com.kakaopay.ecosystem.exception.BadRequestException;
 import com.kakaopay.ecosystem.jwt.JwtResponse;
 import com.kakaopay.ecosystem.jwt.JwtTokenUtil;
+import com.kakaopay.ecosystem.store.JwtTokenStore;
 import com.kakaopay.ecosystem.store.UserStore;
 
 @Service
 public class UserService implements UserDetailsService {
 
 	private final UserStore store;
+	private final JwtTokenStore jwtTokenStore;
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
@@ -33,8 +36,9 @@ public class UserService implements UserDetailsService {
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
 
-	public UserService(UserStore store) {
+	public UserService(UserStore store, JwtTokenStore jwtTokenStore) {
 		this.store = store;
+		this.jwtTokenStore = jwtTokenStore;
 		this.passwordEncoder = new BCryptPasswordEncoder();
 	}
 
@@ -64,6 +68,28 @@ public class UserService implements UserDetailsService {
 		return response;
 	}
 
+	public JwtResponse refreshToken(String refreshToken, String userId) {
+		JwtResponse response = null;
+		JwtTokenEntity jwtTokenEntity = this.jwtTokenStore.findByRefreshToken(refreshToken);
+		if (jwtTokenEntity != null && !jwtTokenEntity.isUsed()) {
+
+			UserDetails userDetails = loadUserByUsername(userId);
+
+			if (userDetails == null) {
+				throw new RuntimeException("Unable to find the user information");
+			}
+
+			response = generateJwtToken(userDetails);
+
+			jwtTokenEntity.setUsed(true);
+			jwtTokenStore.save(jwtTokenEntity);
+		} else {
+			throw new RuntimeException("Invalid refresh token");
+		}
+
+		return response;
+	}
+
 	public UserEntity loadUserByUserId(String userId) {
 		return this.store.findByUserId(userId);
 	}
@@ -73,9 +99,19 @@ public class UserService implements UserDetailsService {
 		return this.store.findAll();
 	}
 
+	public List<JwtTokenEntity> findAllJwt() {
+
+		return this.jwtTokenStore.findAll();
+	}
+
 	private JwtResponse generateJwtToken(UserDetails userDetails) {
-		String token = jwtTokenUtil.generateToken(userDetails);
-		JwtResponse jwtResponse = new JwtResponse(token);
+		String accessToken = jwtTokenUtil.generateAccessToken(userDetails);
+		String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails);
+
+		JwtTokenEntity jwtTokenEntity = new JwtTokenEntity(accessToken, refreshToken);
+		jwtTokenStore.save(jwtTokenEntity);
+
+		JwtResponse jwtResponse = new JwtResponse(accessToken, refreshToken);
 
 		return jwtResponse;
 	}

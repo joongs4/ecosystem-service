@@ -1,8 +1,10 @@
 package com.kakaopay.ecosystem.jwt;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -21,8 +23,11 @@ public class JwtTokenUtil implements Serializable {
 	 */
 	private static final long serialVersionUID = 3878505844565163307L;
 
-	@Value("${jwt.validHour:5}")
-	private Long inputValidHour;
+	@Value("${jwt.accessTokenValidHour:1}")
+	private Long inputAccessTokenValidHour;
+
+	@Value("${jwt.refreshTokenValidHour:24}")
+	private Long inputRefreshTokenValidHour;
 
 	@Value("${jwt.secret:kakaopay}")
 	private String secret;
@@ -49,14 +54,22 @@ public class JwtTokenUtil implements Serializable {
 		return expiration.before(new Date());
 	}
 
-	public String generateToken(UserDetails userDetails) {
+	public String generateRefreshToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		return doGenerateToken(claims, userDetails.getUsername());
+
+		claims.put("scope", Arrays.asList("REFRESH_TOKEN"));
+		long validHour = inputRefreshTokenValidHour * 60 * 60;
+		return doGenerateToken(claims, userDetails.getUsername(), validHour);
 	}
 
-	private String doGenerateToken(Map<String, Object> claims, String subject) {
+	public String generateAccessToken(UserDetails userDetails) {
+		Map<String, Object> claims = new HashMap<>();
+		claims.put("scope", Arrays.asList("ROLE_USER"));
+		long validHour = inputAccessTokenValidHour * 60 * 60;
+		return doGenerateToken(claims, userDetails.getUsername(), validHour);
+	}
 
-		long validHour = inputValidHour * 60 * 60;
+	private String doGenerateToken(Map<String, Object> claims, String subject, long validHour) {
 
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + validHour * 1000))
@@ -66,5 +79,22 @@ public class JwtTokenUtil implements Serializable {
 	public Boolean validateToken(String token, UserDetails userDetails) {
 		final String username = getUsernameFromToken(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+	}
+
+	public boolean isRefreshToken(String token) {
+		final Claims claims = getAllClaimsFromToken(token);
+
+		Object objScopes = claims.get("scope");
+		if (objScopes != null && objScopes instanceof List) {
+			List scopes = (List) objScopes;
+			for (Object scope : scopes) {
+				String strScope = String.valueOf(scope);
+				if ("REFRESH_TOKEN".equalsIgnoreCase(strScope)) {
+					return true;
+				}
+			}
+		}
+		return false;
+
 	}
 }

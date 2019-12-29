@@ -58,7 +58,8 @@ public class UserStore {
 			return user.get().toDomain();
 		}
 		return null;
-
 	}
+	
+	
 
 }

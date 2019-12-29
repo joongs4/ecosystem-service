@@ -1,6 +1,8 @@
 package com.kakaopay.ecosystem.filter;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -10,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -62,9 +67,33 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		try {
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 				UserDetails userDetails = this.userService.loadUserByUsername(username);
-				if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+
+				if (jwtTokenUtil.isRefreshToken(jwtToken)) {
+					if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+						// Valid
+						SimpleGrantedAuthority refreshTokenAuthority = new SimpleGrantedAuthority("ROLE_REFRESH_TOKEN");
+						List<GrantedAuthority> authorities = new ArrayList<>();
+						authorities.add(refreshTokenAuthority);
+						UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+								userDetails, null, authorities);
+						usernamePasswordAuthenticationToken
+								.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+						SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+					} else {
+
+						throw new BadCredentialsException("Invalid refresh token");
+					}
+
+				} else if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+
+					SimpleGrantedAuthority userAuthority = new SimpleGrantedAuthority("ROLE_USER");
+					List<GrantedAuthority> authorities = new ArrayList<>();
+					authorities.add(userAuthority);
+
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-							userDetails, null, userDetails.getAuthorities());
+							userDetails, null, authorities);
 					usernamePasswordAuthenticationToken
 							.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
@@ -72,7 +101,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			}
 		} catch (UsernameNotFoundException e) {
 			logger.error(e.getMessage());
-			
+
 			throw e;
 		}
 

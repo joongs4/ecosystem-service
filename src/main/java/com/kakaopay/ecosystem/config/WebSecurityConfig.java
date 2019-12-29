@@ -22,10 +22,13 @@ import com.kakaopay.ecosystem.jwt.JwtAuthenticationEntryPoint;
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+
 	@Autowired
 	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
 	@Autowired
 	private UserDetailsService userDetailsService;
+
 	@Autowired
 	private JwtRequestFilter jwtRequestFilter;
 
@@ -47,15 +50,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
-//		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/user/signup", "/user/signin").permitAll()
-//				.anyRequest().authenticated().and().exceptionHandling()
-//				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-//				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
-		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/*").permitAll().and().headers().frameOptions()
-				.disable();
-//		httpSecurity.headers().frameOptions().disable();
-//		http.headers().frameOptions().disable();
+//		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/*").permitAll().and().headers().frameOptions()
+//				.disable();
+
+		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/user/refresh").hasRole("REFRESH_TOKEN")
+				.antMatchers("/user/signup", "/user/signin", "/user/jwt", "/user").permitAll().anyRequest().hasRole("USER").and()
+				.exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+
 	}
 }
