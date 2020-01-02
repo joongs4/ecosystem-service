@@ -13,29 +13,72 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.entity.ProgramRecommendationEntity;
 import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
+import com.kakaopay.ecosystem.entity.ProgramsByRegionEntity;
+import com.kakaopay.ecosystem.entity.RegionEntity;
 import com.kakaopay.ecosystem.entity.WordCountEntity;
-import com.kakaopay.ecosystem.resource.EcosystemServiceResource;
+import com.kakaopay.ecosystem.service.EcosystemService;
+import com.kakaopay.ecosystem.service.RegionService;
 
 @SpringBootTest
 public class EcosystemServiceTests {
 
 	@Autowired
-	EcosystemServiceResource ecosystemServiceResource;
+	private EcosystemService ecosystemService;
+
+	@Autowired
+	private RegionService regionService;
 
 	@Test
-	void testFindById() {
-		List<EcosystemServiceEntity> ecosystemServiceEntities = ecosystemServiceResource.findAll();
-		assertNotNull(ecosystemServiceEntities);
-		assertNotEquals(0, ecosystemServiceEntities.size());
+	void testFindAllEcosystemAndFindByIdEcosystem() throws Exception {
+		List<EcosystemServiceEntity> results = ecosystemService.findAll();
 
-		EcosystemServiceEntity entityFoundByid = ecosystemServiceResource
-				.findById(ecosystemServiceEntities.get(0).getId());
+		assertNotNull(results);
+		assertNotEquals(0, results.size());
 
-		assertNotNull(entityFoundByid);
+		EcosystemServiceEntity firstEntity = results.get(0);
+		EcosystemServiceEntity entityFoundById = ecosystemService.findById(firstEntity.getId());
+
+		assertNotNull(entityFoundById);
+
 	}
 
 	@Test
-	void testSaveEcosystemServiceEntity() {
+	void testFindRegionByKeyword() throws Exception {
+
+		final String keyword = "세계문화유산";
+
+		ProgramRegionByKeyword programRegionByKeyword = ecosystemService.findRegionByKeyword(keyword);
+
+		assertNotNull(programRegionByKeyword);
+		assertEquals(keyword, programRegionByKeyword.getKeyword());
+
+	}
+
+	@Test
+	void testFindKeywordCount() throws Exception {
+		final String keyword = "문화";
+
+		WordCountEntity wordCountEntity = ecosystemService.findKeywordCount(keyword);
+
+		assertNotNull(wordCountEntity);
+		assertEquals(keyword, wordCountEntity.getKeyword());
+	}
+
+	@Test
+	void testFindRecommendation() throws Exception {
+
+		final String region = "평창";
+		final String keyword = "국립공원";
+
+		ProgramRecommendationEntity programRecommendationEntity = ecosystemService.findRecommendation(region, keyword);
+
+		assertNotNull(programRecommendationEntity);
+		assertEquals(keyword, programRecommendationEntity.getKeyword());
+
+	}
+
+	@Test
+	void testSaveEcosystemAndUpdateEcosystem() throws Exception {
 
 		EcosystemServiceEntity entityToSave = new EcosystemServiceEntity();
 		entityToSave.setTheme("Test");
@@ -44,59 +87,41 @@ public class EcosystemServiceTests {
 		entityToSave.setProgramIntroduction("프로그램 소개 테스트");
 		entityToSave.setProgramDetailedIntroduction("프로그램 상세 소개");
 
-		EcosystemServiceEntity savedEntity = ecosystemServiceResource.saveEcosystemService(entityToSave);
+		EcosystemServiceEntity savedEntity = ecosystemService.saveEcosystemService(entityToSave);
 		assertNotNull(savedEntity);
 
-		EcosystemServiceEntity foundEntity = ecosystemServiceResource.findById(savedEntity.getId());
+		EcosystemServiceEntity foundEntity = ecosystemService.findById(savedEntity.getId());
 		assertNotNull(foundEntity);
+
+		final String theme = "testTheme";
+
+		foundEntity.setTheme(theme);
+		EcosystemServiceEntity updatedEntity = ecosystemService.updateEcosystemService(foundEntity.getId(),
+				foundEntity);
+
+		assertNotNull(updatedEntity);
+		assertEquals(theme, updatedEntity.getTheme());
+
 	}
 
 	@Test
-	void testUpdateEcosystemServiceEntity() {
+	void testFindProgramsByRegion() throws Exception {
+		final String region = "평창군";
+		List<ProgramsByRegionEntity> programsByRegionEntities = regionService.findProgramsByRegion(region);
+		assertNotNull(programsByRegionEntities);
+		assertNotEquals(0, programsByRegionEntities.size());
 
-		final String testThemeValue = "테스트";
+		List<RegionEntity> regionEntitiesFoundByRegion = regionService.findRegion(region);
+		assertNotNull(regionEntitiesFoundByRegion);
+		assertNotEquals(0, regionEntitiesFoundByRegion.size());
 
-		List<EcosystemServiceEntity> ecosystemServiceEntities = ecosystemServiceResource.findAll();
-		assertNotNull(ecosystemServiceEntities);
-		assertNotEquals(0, ecosystemServiceEntities.size());
+		List<RegionEntity> regionEntitiesFoundAll = regionService.findAll();
+		assertNotNull(regionEntitiesFoundAll);
+		assertNotEquals(0, regionEntitiesFoundAll.size());
 
-		EcosystemServiceEntity entityFoundById = ecosystemServiceResource
-				.findById(ecosystemServiceEntities.get(0).getId());
+		RegionEntity regionEntitySavedIfNotExists = regionService.saveIfNotExists("강원도 평창군");
+		assertNotNull(regionEntitySavedIfNotExists);
 
-		entityFoundById.setTheme(testThemeValue);
-
-		EcosystemServiceEntity updatedEcosystemServiceEntity = ecosystemServiceResource
-				.updateEcosystemService(entityFoundById.getId(), entityFoundById);
-
-		assertEquals(testThemeValue, updatedEcosystemServiceEntity.getTheme());
-	}
-
-	@Test
-	void testFindRegionByKeyword() {
-
-		final String testKeywordValue = "세계문화유산";
-
-		ProgramRegionByKeyword programRegionFoundByKeyword = ecosystemServiceResource
-				.findRegionByKeyword(testKeywordValue);
-		assertNotNull(programRegionFoundByKeyword);
-	}
-
-	@Test
-	void testFindKeywordCount() {
-		final String testKeywordValue = "문화";
-		WordCountEntity wordCountEntity = ecosystemServiceResource.findKeywordCount(testKeywordValue);
-		assertNotNull(wordCountEntity);
-	}
-
-	@Test
-	void testFindRecommendation() {
-
-		final String testRegionValue = "남해";
-		final String testKeywordValue = "생태체험";
-
-		ProgramRecommendationEntity recommendationEntity = ecosystemServiceResource.findRecommendation(testRegionValue,
-				testKeywordValue);
-		assertNotNull(recommendationEntity);
 	}
 
 }

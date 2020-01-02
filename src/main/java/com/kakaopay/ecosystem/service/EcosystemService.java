@@ -22,6 +22,7 @@ import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
 import com.kakaopay.ecosystem.entity.RegionEntity;
 import com.kakaopay.ecosystem.entity.WordCountEntity;
 import com.kakaopay.ecosystem.exception.BadRequestException;
+import com.kakaopay.ecosystem.exception.InternalServerException;
 import com.kakaopay.ecosystem.search.KmpSearchStrategy;
 import com.kakaopay.ecosystem.search.SearchStrategy;
 import com.kakaopay.ecosystem.store.EcosystemServiceStore;
@@ -54,12 +55,12 @@ public class EcosystemService {
 	public ProgramRegionByKeyword findRegionByKeyword(String keyword) {
 
 		List<EcosystemServiceEntity> allEcosystemServiceEntities = findAll();
-		List<EcosystemServiceEntity> matchingEntities = allEcosystemServiceEntities.stream()
-				.filter(entity -> entity.getProgramIntroduction().contains(keyword)).collect(Collectors.toList());
 
-		EcosystemServiceEntity[] matchingEntitiesInArray = new EcosystemServiceEntity[matchingEntities.size()];
-		ProgramRegionByKeyword programRegionByKeyword = new ProgramRegionByKeyword(keyword,
-				matchingEntities.toArray(matchingEntitiesInArray));
+		EcosystemServiceEntity[] matchingEntities = allEcosystemServiceEntities.stream()
+				.filter(entity -> entity.getProgramIntroduction().contains(keyword))
+				.toArray(EcosystemServiceEntity[]::new);
+
+		ProgramRegionByKeyword programRegionByKeyword = new ProgramRegionByKeyword(keyword, matchingEntities);
 
 		return programRegionByKeyword;
 	}
@@ -178,11 +179,10 @@ public class EcosystemService {
 
 				this.store.save(entityToSave);
 			}
-			csvParser.close();
 
 		} catch (Exception e) {
 
-			throw new BadRequestException("Failed to save init data");
+			throw new InternalServerException("Failed to save init data");
 		}
 	}
 

@@ -1,9 +1,7 @@
 package com.kakaopay.ecosystem.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -23,6 +21,7 @@ import com.kakaopay.ecosystem.jwt.JwtResponse;
 import com.kakaopay.ecosystem.jwt.JwtTokenUtil;
 import com.kakaopay.ecosystem.store.JwtTokenStore;
 import com.kakaopay.ecosystem.store.UserStore;
+import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -30,19 +29,21 @@ public class UserService implements UserDetailsService {
 	private final UserStore store;
 	private final JwtTokenStore jwtTokenStore;
 	private final PasswordEncoder passwordEncoder;
+	private final AuthenticationManager authenticationManager;
+	private final JwtTokenUtil jwtTokenUtil;
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
-	@Autowired
-	private JwtTokenUtil jwtTokenUtil;
-
-	public UserService(UserStore store, JwtTokenStore jwtTokenStore) {
+	public UserService(UserStore store, JwtTokenStore jwtTokenStore, AuthenticationManager authenticationManager,
+			JwtTokenUtil jwtTokenUtil) {
 		this.store = store;
 		this.jwtTokenStore = jwtTokenStore;
 		this.passwordEncoder = new BCryptPasswordEncoder();
+		this.authenticationManager = authenticationManager;
+		this.jwtTokenUtil = jwtTokenUtil;
 	}
 
 	public JwtResponse signUp(UserEntity userEntity) {
+
+		validateUserToSignUp(userEntity);
 
 		if (store.existsById(userEntity.getUserId())) {
 			throw new BadRequestException("User Id already exists");
@@ -117,7 +118,8 @@ public class UserService implements UserDetailsService {
 	}
 
 	private JwtResponse generateJwtToken(UserEntity userEntity) {
-		UserDetails userDetails = new User(userEntity.getUserId(), userEntity.getUserPassword(), new ArrayList<>());
+		UserDetails userDetails = new User(userEntity.getUserId(), userEntity.getUserPassword(),
+				userEntity.getAuthorityInList());
 		return generateJwtToken(userDetails);
 	}
 
@@ -135,9 +137,19 @@ public class UserService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		UserEntity userEntity = loadUserByUserId(username);
 		if (userEntity != null) {
-			return new User(userEntity.getUserId(), userEntity.getUserPassword(), new ArrayList<>());
+			return new User(userEntity.getUserId(), userEntity.getUserPassword(), userEntity.getAuthorityInList());
 		} else {
 			throw new UsernameNotFoundException("User not found with username: " + username);
+		}
+	}
+
+	private void validateUserToSignUp(UserEntity userEntity) {
+		if (EcosystemUtil.isNullOrEmpty(userEntity.getUserId())) {
+			throw new BadRequestException("User ID is required but missing");
+		}
+
+		if (EcosystemUtil.isNullOrEmpty(userEntity.getUserPassword())) {
+			throw new BadRequestException("User Password is required but missing");
 		}
 	}
 

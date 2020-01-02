@@ -1,7 +1,9 @@
 package com.kakaopay.ecosystem.jwt;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -9,8 +11,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -64,7 +69,14 @@ public class JwtTokenUtil implements Serializable {
 
 	public String generateAccessToken(UserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("scope", Arrays.asList("ROLE_USER"));
+
+		Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+		if (!EcosystemUtil.isNullOrEmpty(authorities)) {
+			List<String> scopeList = new ArrayList<String>();
+			authorities.forEach(authority -> scopeList.add(authority.getAuthority()));
+			claims.put("scope", scopeList);
+		}
+
 		long validHour = inputAccessTokenValidHour * 60 * 60;
 		return doGenerateToken(claims, userDetails.getUsername(), validHour);
 	}
@@ -84,9 +96,8 @@ public class JwtTokenUtil implements Serializable {
 	public boolean isRefreshToken(String token) {
 		final Claims claims = getAllClaimsFromToken(token);
 
-		Object objScopes = claims.get("scope");
-		if (objScopes != null && objScopes instanceof List) {
-			List scopes = (List) objScopes;
+		List scopes = claims.get("scope", List.class);
+		if (scopes != null) {
 			for (Object scope : scopes) {
 				String strScope = String.valueOf(scope);
 				if ("REFRESH_TOKEN".equalsIgnoreCase(strScope)) {

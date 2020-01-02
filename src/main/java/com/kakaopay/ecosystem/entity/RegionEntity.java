@@ -3,11 +3,8 @@ package com.kakaopay.ecosystem.entity;
 import java.io.Serializable;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,7 +15,6 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @JsonInclude(Include.NON_NULL)
 public class RegionEntity implements Serializable {
 
@@ -29,7 +25,6 @@ public class RegionEntity implements Serializable {
 	private String id;
 	private String name;
 
-	@JsonManagedReference
 	private List<EcosystemServiceEntity> ecosystemServices;
 
 	public RegionEntity(String name) {

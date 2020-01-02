@@ -11,8 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -21,7 +19,6 @@ import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Parameter;
 import org.springframework.beans.BeanUtils;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.util.StringPrefixedSequenceIdGenerator;
 
@@ -60,9 +57,6 @@ public class EcosystemServiceJpo implements Serializable {
 	private String programDetailedIntroduction;
 
 	@ManyToOne(cascade = { CascadeType.MERGE })
-//	@JsonIgnoreProperties("region")
-	@JoinTable(name = "EcosystemService_Region", joinColumns = {
-			@JoinColumn(name = "ecosystemServiceId") }, inverseJoinColumns = { @JoinColumn(name = "regionId") })
 	private RegionJpo region;
 
 	public EcosystemServiceJpo(EcosystemServiceEntity entity) {

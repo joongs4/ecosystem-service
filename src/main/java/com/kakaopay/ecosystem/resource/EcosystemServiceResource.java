@@ -26,6 +26,7 @@ public class EcosystemServiceResource {
 	public EcosystemServiceResource(EcosystemService service) {
 		this.service = service;
 	}
+	
 
 	@GetMapping
 	public List<EcosystemServiceEntity> findAll() {

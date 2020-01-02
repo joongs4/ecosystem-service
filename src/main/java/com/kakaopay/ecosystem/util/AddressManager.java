@@ -25,9 +25,6 @@ public class AddressManager {
 	public String getStandardAddress(String region) {
 
 		String standardAddress = null;
-		if (region.equals("강원도 평창군 일대")) {
-			System.out.println(region);
-		}
 
 		region = removeDetailsFromAddress(region);
 
@@ -45,51 +42,6 @@ public class AddressManager {
 
 	}
 
-	// 기존
-//	public String getStandardAddress(String region) {
-//
-//		String standardAddress = null;
-//
-//		region = removeDetailsFromAddress(region);
-//
-//		KakaoLocalDocumentsEntity kakaoLocalDocumentsEntity = kakaoLocalService.searchBykeyword(region);
-//		if (kakaoLocalDocumentsEntity != null && !kakaoLocalDocumentsEntity.getDocuments().isEmpty()) {
-//			KakaoLocalDocumentEntity kakaoLocalDocumentEntity = kakaoLocalDocumentsEntity.getDocuments().get(0);
-//			String addressName = kakaoLocalDocumentEntity.getAddress_name();
-//
-//			//기존
-//			standardAddress = removeExceptProvinceAndCity(addressName);
-//		}
-//		//기존
-//		if (standardAddress == null) {
-//			standardAddress = region;
-//		}
-//		return standardAddress;
-//	}
-
-	// 기존
-//	private String removeDetailsFromAddress(String address) {
-//
-//		final String regEx = "[0-9,-]";
-//
-//		String retVal = null;
-//		retVal = address.replaceAll(regEx, "");
-//
-//		for (String trashWord : trashWords) {
-//			if (retVal.contains(trashWord)) {
-//				retVal.replace(trashWord, "");
-//			}
-//		}
-//		retVal = removeExceptProvinceAndCity(retVal);
-//
-//		if (retVal.endsWith(" ")) {
-//			retVal = retVal.substring(0, retVal.length() - 1);
-//		}
-//
-//		return retVal;
-//	}
-
-	// 수정
 	private String removeDetailsFromAddress(String address) {
 
 		final String regEx = "[0-9,-]";
@@ -103,9 +55,6 @@ public class AddressManager {
 			}
 		}
 
-		// 기존
-//		retVal = removeExceptProvinceAndCity(retVal);
-
 		if (retVal.endsWith(" ")) {
 			retVal = retVal.substring(0, retVal.length() - 1);
 		}
@@ -113,7 +62,6 @@ public class AddressManager {
 		return retVal;
 	}
 
-	// 수정
 	private String removeExceptProvinceAndCity(String region) {
 		StringBuilder provinceAndCity = null;
 
@@ -145,36 +93,4 @@ public class AddressManager {
 
 		return provinceAndCity != null ? provinceAndCity.toString() : region;
 	}
-
-	// 기존
-//	private String removeExceptProvinceAndCity(String region) {
-//		StringBuilder provinceAndCity = null;
-//
-//		StringTokenizer tokenizer = new StringTokenizer(region, " ");
-//
-//		while (tokenizer.hasMoreTokens()) {
-//
-//			if (provinceAndCity == null) {
-//				provinceAndCity = new StringBuilder();
-//			}
-//
-//			String tokenValue = tokenizer.nextToken();
-//			if (Arrays.stream(provinces).anyMatch(tokenValue::equals) || tokenValue.endsWith("도")) {
-//
-//				if (tokenValue.length() >= 4) {
-//					tokenValue = tokenValue.substring(0, 1) + tokenValue.substring(2, 3);
-//				}
-//
-//				provinceAndCity.append(tokenValue);
-//				provinceAndCity.append(" ");
-//				continue;
-//			}
-//
-//			provinceAndCity.append(tokenValue);
-//			break;
-//		}
-//
-//		return provinceAndCity != null ? provinceAndCity.toString() : region;
-//	}
-
 }

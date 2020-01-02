@@ -35,37 +35,27 @@ public class UserServiceTest {
 		final String userId = "testId";
 		final String userPassword = "testPassword";
 
-		UserEntity userEntity = new UserEntity();
-		userEntity.setUserId(userId);
-		userEntity.setUserPassword(userPassword);
+		UserEntity userEntityToSignUp = new UserEntity();
+		userEntityToSignUp.setUserId(userId);
+		userEntityToSignUp.setUserPassword(userPassword);
 
-		JwtResponse jwtResponse = userResource.signUp(userEntity);
-		assertNotNull(jwtResponse);
-	}
+		JwtResponse signUpResponse = userResource.signUp(userEntityToSignUp);
+		assertNotNull(signUpResponse);
 
-	@Test
-	void testSignIn() {
-
-		final String userId = "testId2";
-		final String userPassword = "testPassword2";
-
-		UserEntity userEntityToSignup = new UserEntity();
-		userEntityToSignup.setUserId(userId);
-		userEntityToSignup.setUserPassword(userPassword);
-
-		userResource.signUp(userEntityToSignup);
-
-		UserEntity userEntity = new UserEntity();
-		userEntity.setUserId(userId);
-		userEntity.setUserPassword(userPassword);
-		JwtResponse jwtResponse = null;
+		JwtResponse signInResponse = null;
 		try {
-			jwtResponse = userResource.signIn(userEntity);
-		} catch (Exception e) {
-			jwtResponse = null;
-		}
 
-		assertNotNull(jwtResponse);
+			Thread.sleep(1000);
+
+			UserEntity userEntityToSignIn = new UserEntity();
+			userEntityToSignIn.setUserId(userId);
+			userEntityToSignIn.setUserPassword(userPassword);
+			signInResponse = userResource.signIn(userEntityToSignIn);
+		} catch (Exception e) {
+			signInResponse = null;
+		}
+		assertNotNull(signInResponse);
+
 	}
 
 	@Test
@@ -80,6 +70,12 @@ public class UserServiceTest {
 
 		JwtResponse jwtResponse = userResource.signUp(userEntityToSignup);
 		assertNotNull(jwtResponse);
+
+		try {
+			Thread.sleep(1000);
+		} catch (Exception e) {
+
+		}
 
 		UserDetails userDetails = this.userService.loadUserByUsername(userEntityToSignup.getUserId());
 

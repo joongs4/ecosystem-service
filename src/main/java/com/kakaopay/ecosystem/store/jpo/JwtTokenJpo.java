@@ -11,7 +11,6 @@ import javax.persistence.Table;
 
 import org.springframework.beans.BeanUtils;
 
-import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.entity.JwtTokenEntity;
 import com.kakaopay.ecosystem.util.EcosystemUtil;
 

@@ -9,7 +9,10 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import org.springframework.beans.BeanUtils;
+
 import com.kakaopay.ecosystem.entity.UserEntity;
+import com.kakaopay.ecosystem.entity.UserRole;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,17 +31,18 @@ public class UserJpo {
 	@Column(updatable = false)
 	private String userId;
 	private String userPassword;
+	private UserRole role;
 
 	public UserJpo(UserEntity userEntity) {
-		this.userId = userEntity.getUserId();
-		this.userPassword = userEntity.getUserPassword();
+
+		BeanUtils.copyProperties(userEntity, this);
+
 	}
 
 	public UserEntity toDomain() {
 		UserEntity entity = new UserEntity();
 
-		entity.setUserId(this.userId);
-		entity.setUserPassword(this.userPassword);
+		BeanUtils.copyProperties(this, entity);
 
 		return entity;
 	}

@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.kakaopay.ecosystem.store.jpo.RegionJpo;
 
-public interface RegionRepository extends JpaRepository<RegionJpo, Integer> {
+public interface RegionRepository extends JpaRepository<RegionJpo, String> {
 
 	List<RegionJpo> findByNameContaining(String name);
 

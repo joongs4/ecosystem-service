@@ -47,13 +47,13 @@ public class UserResource {
 		return this.service.refreshToken(refreshToken, authentication.getName());
 	}
 
-	// 삭제용
+	// 임시 조회용
 	@GetMapping(path = "/jwt")
 	public List<JwtTokenEntity> findAllJwtToken() {
 		return this.service.findAllJwt();
 	}
 
-	// 삭제용
+	// 임시 조회용
 	@GetMapping
 	public List<UserEntity> findAll() {
 		return this.service.findAll();

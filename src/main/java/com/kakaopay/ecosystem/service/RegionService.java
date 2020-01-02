@@ -17,7 +17,7 @@ import com.kakaopay.ecosystem.util.AddressManager;
 public class RegionService {
 	private final RegionStore store;
 	private final AddressManager addressManager;
-	private ReentrantLock reentrantLock = new ReentrantLock();
+	private final ReentrantLock reentrantLock = new ReentrantLock();
 
 	public RegionService(RegionStore store, AddressManager addressManager) {
 		this.store = store;
@@ -63,14 +63,10 @@ public class RegionService {
 	private RegionEntity saveRegion(String region) {
 		RegionEntity savedRegion = this.store.findByName(region);
 		if (savedRegion == null) {
-			// 기존
-//			reentrantLock.lock();
+
 			RegionEntity entityToSave = new RegionEntity(region);
 			savedRegion = this.store.save(entityToSave);
-//			reentrantLock.unlock();
 		}
-
 		return savedRegion;
 	}
-
 }

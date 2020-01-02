@@ -88,12 +88,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 				} else if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
 
-					SimpleGrantedAuthority userAuthority = new SimpleGrantedAuthority("ROLE_USER");
-					List<GrantedAuthority> authorities = new ArrayList<>();
-					authorities.add(userAuthority);
-
 					UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-							userDetails, null, authorities);
+							userDetails, null, userDetails.getAuthorities());
 					usernamePasswordAuthenticationToken
 							.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 					SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
