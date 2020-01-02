@@ -2,6 +2,7 @@ package com.kakaopay.ecosystem.service;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -29,16 +30,16 @@ public class UserService implements UserDetailsService {
 	private final UserStore store;
 	private final JwtTokenStore jwtTokenStore;
 	private final PasswordEncoder passwordEncoder;
-	private final AuthenticationManager authenticationManager;
 	private final JwtTokenUtil jwtTokenUtil;
 
-	public UserService(UserStore store, JwtTokenStore jwtTokenStore, AuthenticationManager authenticationManager,
-			JwtTokenUtil jwtTokenUtil) {
+	@Autowired
+	private AuthenticationManager authenticationManager;
+
+	public UserService(UserStore store, JwtTokenStore jwtTokenStore, JwtTokenUtil jwtTokenUtil) {
 		this.store = store;
 		this.jwtTokenStore = jwtTokenStore;
-		this.passwordEncoder = new BCryptPasswordEncoder();
-		this.authenticationManager = authenticationManager;
 		this.jwtTokenUtil = jwtTokenUtil;
+		this.passwordEncoder = new BCryptPasswordEncoder();
 	}
 
 	public JwtResponse signUp(UserEntity userEntity) {

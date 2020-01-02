@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 
 import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.store.jpo.EcosystemServiceJpo;
-import com.kakaopay.ecosystem.store.jpo.RegionJpo;
 import com.kakaopay.ecosystem.store.repository.EcosystemServiceRepository;
 import com.kakaopay.ecosystem.util.EcosystemUtil;
 

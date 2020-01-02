@@ -106,14 +106,24 @@ public class EcosystemService {
 		}
 
 		setValues(entity, entityToUpdate);
-		this.store.save(entityToUpdate);
 
-		return entityToUpdate;
+		RegionEntity region = regionService.saveIfNotExists(entityToUpdate.getRegionName());
+		if (region != null && !region.equals(entityToUpdate.getRegion())) {
+			entityToUpdate.setRegion(region);
+		}
+
+		return this.store.save(entityToUpdate);
 	}
 
 	public EcosystemServiceEntity saveEcosystemService(EcosystemServiceEntity entity) {
 
 		validateEcosystemServiceEntity(entity);
+
+		RegionEntity region = regionService.saveIfNotExists(entity.getRegionName());
+		if (region != null) {
+			entity.setRegion(region);
+		}
+
 		return this.store.save(entity);
 	}
 
@@ -145,6 +155,10 @@ public class EcosystemService {
 
 		if (sourceEntity.getProgramName() != null) {
 			targetEntity.setProgramName(sourceEntity.getProgramName());
+		}
+
+		if (sourceEntity.getRegionName() != null) {
+			targetEntity.setRegionName(sourceEntity.getRegionName());
 		}
 
 		if (sourceEntity.getRegion() != null) {
