@@ -37,14 +37,6 @@ public class EcosystemServiceResource {
 	@GetMapping(path = "/region")
 	public ProgramRegionByKeyword findRegionByKeyword(@RequestParam(name = "keyword") String keyword) {
 
-		if (keyword.startsWith("평창")) {
-			throw new BadRequestException("잘 못 된 요청입니다.");
-		}
-
-		if (keyword.startsWith("삼척")) {
-			throw new RuntimeException("서버에러");
-		}
-
 		return this.service.findRegionByKeyword(keyword);
 	}
 
