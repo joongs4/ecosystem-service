@@ -22,9 +22,7 @@ import com.kakaopay.ecosystem.jwt.JwtAuthenticationEntryPoint;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
-
 	private final UserDetailsService userDetailsService;
-
 	private final JwtRequestFilter jwtRequestFilter;
 
 	public WebSecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,

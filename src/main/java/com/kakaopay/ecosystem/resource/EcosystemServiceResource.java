@@ -15,6 +15,7 @@ import com.kakaopay.ecosystem.entity.EcosystemServiceEntity;
 import com.kakaopay.ecosystem.entity.ProgramRecommendationEntity;
 import com.kakaopay.ecosystem.entity.ProgramRegionByKeyword;
 import com.kakaopay.ecosystem.entity.WordCountEntity;
+import com.kakaopay.ecosystem.exception.BadRequestException;
 import com.kakaopay.ecosystem.service.EcosystemService;
 
 @RestController
@@ -35,6 +36,14 @@ public class EcosystemServiceResource {
 
 	@GetMapping(path = "/region")
 	public ProgramRegionByKeyword findRegionByKeyword(@RequestParam(name = "keyword") String keyword) {
+
+		if (keyword.startsWith("평창")) {
+			throw new BadRequestException("잘 못 된 요청입니다.");
+		}
+
+		if (keyword.startsWith("삼척")) {
+			throw new RuntimeException("서버에러");
+		}
 
 		return this.service.findRegionByKeyword(keyword);
 	}

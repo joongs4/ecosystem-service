@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -33,11 +34,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class.getCanonicalName());
 
-//	@Autowired
-	private UserDetailsServiceImpl userDetailsServiceImpl;
-
-//	@Autowired
-	private JwtTokenUtil jwtTokenUtil;
+	private final UserDetailsServiceImpl userDetailsServiceImpl;
+	private final JwtTokenUtil jwtTokenUtil;
 
 	public JwtRequestFilter(UserDetailsServiceImpl userDetailsServiceImpl, JwtTokenUtil jwtTokenUtil) {
 		// TODO Auto-generated constructor stub
@@ -52,6 +50,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		final String requestTokenHeader = request.getHeader("Authorization");
 		String username = null;
 		String jwtToken = null;
+
 		if (requestTokenHeader != null) {
 			if (requestTokenHeader.startsWith("Bearer ") || requestTokenHeader.startsWith("bearer ")) {
 				jwtToken = requestTokenHeader.substring(7);
