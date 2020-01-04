@@ -11,10 +11,12 @@ import com.kakaopay.ecosystem.exception.InternalServerException;
 
 public class EcosystemHttpClient {
 
+	private static final RestTemplate restTemplate = new RestTemplate();
+
 	public static <T> T get(String url, Class<T> responseType, Map<String, ?> variables,
 			ClientHttpRequestInterceptor... interceptors) {
 
-		RestTemplate restTemplate = new RestTemplate();
+//		RestTemplate restTemplate = new RestTemplate();
 
 		if (interceptors != null) {
 			restTemplate.setInterceptors(Arrays.asList(interceptors));

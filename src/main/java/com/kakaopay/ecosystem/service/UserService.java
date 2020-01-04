@@ -2,15 +2,12 @@ package com.kakaopay.ecosystem.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,21 +22,24 @@ import com.kakaopay.ecosystem.store.UserStore;
 import com.kakaopay.ecosystem.util.EcosystemUtil;
 
 @Service
-public class UserService implements UserDetailsService {
+public class UserService {
 
 	private final UserStore store;
 	private final JwtTokenStore jwtTokenStore;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtTokenUtil jwtTokenUtil;
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+	private final AuthenticationManager authenticationManager;
+	private final UserDetailsServiceImpl userDetailsServiceImpl;
 
-	public UserService(UserStore store, JwtTokenStore jwtTokenStore, JwtTokenUtil jwtTokenUtil) {
+	public UserService(UserStore store, JwtTokenStore jwtTokenStore, JwtTokenUtil jwtTokenUtil,
+			AuthenticationManager authenticationManager, UserDetailsServiceImpl userDetailsServiceImpl) {
 		this.store = store;
 		this.jwtTokenStore = jwtTokenStore;
 		this.jwtTokenUtil = jwtTokenUtil;
 		this.passwordEncoder = new BCryptPasswordEncoder();
+		this.authenticationManager = authenticationManager;
+		this.userDetailsServiceImpl = userDetailsServiceImpl;
 	}
 
 	public JwtResponse signUp(UserEntity userEntity) {
@@ -64,7 +64,7 @@ public class UserService implements UserDetailsService {
 	public JwtResponse signIn(UserEntity userEntity) {
 
 		authenticate(userEntity.getUserId(), userEntity.getUserPassword());
-		UserDetails userDetails = loadUserByUsername(userEntity.getUserId());
+		UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(userEntity.getUserId());
 		JwtResponse response = generateJwtToken(userDetails);
 
 		return response;
@@ -75,7 +75,7 @@ public class UserService implements UserDetailsService {
 		JwtTokenEntity jwtTokenEntity = this.jwtTokenStore.findByRefreshToken(refreshToken);
 		if (jwtTokenEntity != null && !jwtTokenEntity.isUsed()) {
 
-			UserDetails userDetails = loadUserByUsername(userId);
+			UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(userId);
 
 			if (userDetails == null) {
 				throw new RuntimeException("Unable to find the user information");
@@ -134,15 +134,15 @@ public class UserService implements UserDetailsService {
 		}
 	}
 
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		UserEntity userEntity = loadUserByUserId(username);
-		if (userEntity != null) {
-			return new User(userEntity.getUserId(), userEntity.getUserPassword(), userEntity.getAuthorityInList());
-		} else {
-			throw new UsernameNotFoundException("User not found with username: " + username);
-		}
-	}
+//	@Override
+//	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//		UserEntity userEntity = loadUserByUserId(username);
+//		if (userEntity != null) {
+//			return new User(userEntity.getUserId(), userEntity.getUserPassword(), userEntity.getAuthorityInList());
+//		} else {
+//			throw new UsernameNotFoundException("User not found with username: " + username);
+//		}
+//	}
 
 	private void validateUserToSignUp(UserEntity userEntity) {
 		if (EcosystemUtil.isNullOrEmpty(userEntity.getUserId())) {

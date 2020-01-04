@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,7 +24,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.kakaopay.ecosystem.exception.BadRequestException;
 import com.kakaopay.ecosystem.jwt.JwtTokenUtil;
-import com.kakaopay.ecosystem.service.UserService;
+import com.kakaopay.ecosystem.service.UserDetailsServiceImpl;
 
 import io.jsonwebtoken.ExpiredJwtException;
 
@@ -34,11 +33,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 	private static final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class.getCanonicalName());
 
-	@Autowired
-	private UserService userService;
+//	@Autowired
+	private UserDetailsServiceImpl userDetailsServiceImpl;
 
-	@Autowired
+//	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
+
+	public JwtRequestFilter(UserDetailsServiceImpl userDetailsServiceImpl, JwtTokenUtil jwtTokenUtil) {
+		// TODO Auto-generated constructor stub
+		this.userDetailsServiceImpl = userDetailsServiceImpl;
+		this.jwtTokenUtil = jwtTokenUtil;
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
@@ -66,7 +71,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 		try {
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-				UserDetails userDetails = this.userService.loadUserByUsername(username);
+				UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(username);
 
 				if (jwtTokenUtil.isRefreshToken(jwtToken)) {
 					if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {

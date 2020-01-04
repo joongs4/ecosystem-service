@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.kakaopay.ecosystem.entity.UserEntity;
 import com.kakaopay.ecosystem.jwt.JwtResponse;
 import com.kakaopay.ecosystem.resource.UserResource;
+import com.kakaopay.ecosystem.service.UserDetailsServiceImpl;
 import com.kakaopay.ecosystem.service.UserService;
 
 @SpringBootTest
@@ -28,6 +29,9 @@ public class UserServiceTest {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private UserDetailsServiceImpl userDetailsServiceImpl;
 
 	@Test
 	void testSignUp() {
@@ -77,7 +81,7 @@ public class UserServiceTest {
 
 		}
 
-		UserDetails userDetails = this.userService.loadUserByUsername(userEntityToSignup.getUserId());
+		UserDetails userDetails = this.userDetailsServiceImpl.loadUserByUsername(userEntityToSignup.getUserId());
 
 		SimpleGrantedAuthority refreshTokenAuthority = new SimpleGrantedAuthority("ROLE_REFRESH_TOKEN");
 		List<GrantedAuthority> authorities = new ArrayList<>();

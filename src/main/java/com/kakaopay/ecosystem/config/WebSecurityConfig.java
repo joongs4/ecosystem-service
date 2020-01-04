@@ -9,11 +9,9 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.kakaopay.ecosystem.filter.JwtRequestFilter;
 import com.kakaopay.ecosystem.jwt.JwtAuthenticationEntryPoint;
@@ -23,14 +21,18 @@ import com.kakaopay.ecosystem.jwt.JwtAuthenticationEntryPoint;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-	@Autowired
-	private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+	private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
-	@Autowired
-	private UserDetailsService userDetailsService;
+	private final UserDetailsService userDetailsService;
 
-	@Autowired
-	private JwtRequestFilter jwtRequestFilter;
+	private final JwtRequestFilter jwtRequestFilter;
+
+	public WebSecurityConfig(JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+			UserDetailsService userDetailsService, JwtRequestFilter jwtRequestFilter) {
+		this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+		this.userDetailsService = userDetailsService;
+		this.jwtRequestFilter = jwtRequestFilter;
+	}
 
 	@Autowired
 	public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -51,15 +53,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity httpSecurity) throws Exception {
 
-//		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/*").permitAll().and().headers().frameOptions()
-//				.disable();
+		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/*").permitAll().and().headers().frameOptions()
+				.disable();
 
-		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/user/refresh").hasRole("REFRESH_TOKEN")
-				.antMatchers("/user/signup", "/user/signin", "/user/jwt", "/user").permitAll().anyRequest()
-				.hasAnyRole("USER", "ADMIN").and().exceptionHandling()
-				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
-				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+//		httpSecurity.csrf().disable().authorizeRequests().antMatchers("/user/refresh").hasRole("REFRESH_TOKEN")
+//				.antMatchers("/user/signup", "/user/signin", "/user/jwt", "/user").permitAll().anyRequest()
+//				.hasAnyRole("USER", "ADMIN").and().exceptionHandling()
+//				.authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+//				.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+//		httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 	}
 }
